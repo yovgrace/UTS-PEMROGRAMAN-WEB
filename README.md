@@ -16,6 +16,6 @@
 <img width="1532" height="642" alt="Ekspor Excel" src="https://github.com/user-attachments/assets/2703f1fb-be88-4b53-87f2-8f5ec4b2d8ed" />
 
 
-Fungsi program tersebut sebagai Validasi awal sebelum ekspor. Jika array data masih kosong (data.length === 0), aplikasi akan memunculkan kotak peringatan (alert) dan membatalkan proses ekspor dengan perintah return.
+jadi intinya fungsi eksporExcel() ini gunanya buat nge-convert data mahasiswa di web jadi file .xlsx pake library SheetJS, di mana sistem bakal ngecek dulu ketersediaan datanya lewat if(data.length === 0) biar gak error, lalu ngelakuin mapping data pake .map() biar struktur kolomnya rapi (termasuk ngubah inisial 'L' atau 'P' jadi teks 'Laki-laki'/'Perempuan'), baru setelah itu datanya diubah jadi lembaran worksheet, dimasukin ke workbook baru, dan otomatis di-download ke device user dengan nama file Data_Mahasiswa.xlsx. Sementara itu, kode di bawahnya cuma buat nge-handle fitur live search biar tiap kali user ngetik halaman langsung balik ke halaman pertama, sama ada fungsi updateStatistik() yang otomatis jalan pas web pertama kali dimuat buat memperbarui data tampilan dashboard lo.
 
 𝟐. 𝐋𝐚𝐛𝐞𝐥 𝐒𝐭𝐚𝐭𝐢𝐬𝐭𝐢𝐤
