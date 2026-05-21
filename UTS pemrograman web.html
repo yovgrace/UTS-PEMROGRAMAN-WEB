@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Mahasiswa</title>
+
+    <!-- Memuat SheetJS untuk fitur Ekspor ke Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #e5e7eb;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        /* Navigasi Halaman (Tabs) */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #0f172a;
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            color: #94a3b8;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            background: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Halaman Konten */
+        .page {
+            display: none;
+            background: #1e293b;
+            padding: 32px;
+            border-radius: 18px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        h1, h2 {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Form Layout */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .form-full {
+            grid-column: 1 / -1;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #fff;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        .error {
+            color: #f87171;
+            font-size: 12px;
+            margin-top: 4px;
+            min-height: 18px;
+        }
+
+        /* Buttons */
+        button.btn-primary {
+            background: #22c55e;
+            color: #022c22;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button.btn-primary:hover {
+            background: #16a34a;
+        }
+
+        .btn-excel {
+            background: #107c41;
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn-excel:hover {
+            background: #0e6c38;
+        }
+
+        /* Toolbar & Cari */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .top-bar input {
+            max-width: 300px;
+        }
+
+        /* Tabel */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: #0f172a;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        th {
+            background-color: #1e293b;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Action Links */
+        .action-link {
+            text-decoration: none;
+            margin: 0 5px;
+            font-size: 16px;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        .action-link:hover {
+            transform: scale(1.2);
+        }
+
+        /* Badges */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .l { background: #2563eb; color: #fff; }
+        .p { background: #db2777; color: #fff; }
+
+        /* Banner Statistik */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+
+        .stats-card {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            text-align: center;
+        }
+
+        .stats-card h3 {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stats-card p {
+            font-size: 28px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            background: #0f172a;
+            color: #fff;
+            border: 1px solid #334155;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover {
+            border-color: #2563eb;
+        }
+
+        .pagination .active {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Menu Navigasi / Tab Halaman -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchPage('input-page')">📝 Input Data</button>
+            <button class="tab-btn" onclick="switchPage('data-page')">📋 Tampilkan Data & Statistik</button>
+        </div>
+
+        <!-- HALAMAN 1: FORM INPUT DATA -->
+        <div id="input-page" class="page active">
+            <h1 id="form-title">🎓 Tambah Mahasiswa</h1>
+            <form id="form">
+                <div class="form-grid">
+                    <div>
+                        <input id="nim" placeholder="NIM">
+                        <div class="error" id="eNim"></div>
+                    </div>
+
+                    <div>
+                        <input id="nama" placeholder="Nama Lengkap">
+                        <div class="error" id="eNama"></div>
+                    </div>
+
+                    <div class="form-full">
+                        <input id="alamat" placeholder="Alamat">
+                        <div class="error" id="eAlamat"></div>
+                    </div>
+
+                    <div>
+                        <select id="jk">
+                            <option value="">-- Pilih Jenis Kelamin --</option>
+                            <option value="L">Laki-laki</option>
+                            <option value="P">Perempuan</option>
+                        </select>
+                        <div class="error" id="eJk"></div>
+                    </div>
+
+                    <div>
+                        <input type="password" id="password" placeholder="Password">
+                        <div class="error" id="ePassword"></div>
+                    </div>
+
+                    <input type="hidden" id="editId">
+
+                    <div class="form-full">
+                        <button type="submit" class="btn-primary" id="btn-simpan">💾 Simpan Data</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- HALAMAN 2: TAMPILAN DATA, STATISTIK & EKSPOR -->
+        <div id="data-page" class="page">
+            <h2>📈 Statistik Data</h2>
+            <!-- Fitur Tampilan Statistik -->
+            <div class="stats-grid">
+                <div class="stats-card">
+                    <h3>Total Mahasiswa</h3>
+                    <p id="stat-total">0</p>
+                </div>
+                <div class="stats-card">
+                    <h3>Laki-laki</h3>
+                    <p id="stat-l">0</p>
+                </div>
+                <div class="stats-card">
+                    <h3>Perempuan</h3>
+                    <p id="stat-p">0</p>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #334155; margin: 25px 0;">
+
+            <h2>📋 Data Mahasiswa</h2>
+            <div class="top-bar">
+                <input id="search" placeholder="🔍 Cari NIM / Nama">
+                <!-- Fitur Ekspor Excel -->
+                <button class="btn-excel" onclick="eksporExcel()">📊 Ekspor ke Excel</button>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>NIM</th>
+                            <th>Nama</th>
+                            <th>Alamat</th>
+                            <th>JK</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
+
+    <script>
+        let data = JSON.parse(localStorage.getItem("mahasiswa")) || [];
+        let page = 1;
+        const limit = 3;
+
+        // Inisialisasi Elemen DOM
+        const form = document.getElementById("form");
+        const tbody = document.getElementById("tbody");
+        const pagination = document.getElementById("pagination");
+        const searchInput = document.getElementById("search");
+        
+        const nimInput = document.getElementById("nim");
+        const namaInput = document.getElementById("nama");
+        const alamatInput = document.getElementById("alamat");
+        const jkInput = document.getElementById("jk");
+        const passwordInput = document.getElementById("password");
+        const editIdInput = document.getElementById("editId");
+        const formTitle = document.getElementById("form-title");
+        const btnSimpan = document.getElementById("btn-simpan");
+
+        // Fitur Ganti Halaman (Tabs)
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(pageId).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            // Render ulang jika membuka halaman data
+            if(pageId === 'data-page') {
+                render();
+            }
+        }
+
+        // Fitur Update Tampilan Statistik Real-time
+        function updateStatistik() {
+            document.getElementById("stat-total").innerText = data.length;
+            document.getElementById("stat-l").innerText = data.filter(d => d.jk === 'L').length;
+            document.getElementById("stat-p").innerText = data.filter(d => d.jk === 'P').length;
+        }
+
+        // Fungsi Render Utama Data Tabel & Pagination
+        function render() {
+            updateStatistik();
+            const q = searchInput.value.toLowerCase();
+            const filtered = data.filter(d =>
+                d.nim.includes(q) || d.nama.toLowerCase().includes(q)
+            );
+
+            const totalPage = Math.ceil(filtered.length / limit) || 1;
+            if (page > totalPage) page = totalPage; // Proteksi jika page out-of-bounds sesudah hapus data
+
+            const start = (page - 1) * limit;
+            const rows = filtered.slice(start, start + limit);
+
+            tbody.innerHTML = "";
+            rows.forEach((m, i) => {
+                tbody.innerHTML += `
+                <tr>
+                    <td>${start + i + 1}</td>
+                    <td>${m.nim}</td>
+                    <td>${m.nama}</td>
+                    <td>${m.alamat || '-'}</td>
+                    <td>
+                        <span class="badge ${m.jk == 'L' ? 'l' : 'p'}">
+                            ${m.jk == 'L' ? 'Laki-laki' : 'Perempuan'}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="#" class="action-link" onclick="edit(${m.id})">✏️</a> |
+                        <a href="#" class="action-link" onclick="hapus(${m.id})">🗑</a>
+                    </td>
+                </tr>`;
+            });
+
+            pagination.innerHTML = ""; 
+            for (let i = 1; i <= totalPage; i++) {
+                pagination.innerHTML += `
+                <button class="${i == page ? 'active' : ''}" onclick="changePage(${i})">${i}</button>
+                `;
+            }
+        }
+
+        function changePage(i) {
+            page = i;
+            render();
+        }
+
+        // Fitur Aksi Edit Data (Redirect otomatis ke Halaman Input)
+        function edit(id) {
+            const m = data.find(d => d.id === id);
+            if (!m) return;
+
+            nimInput.value = m.nim;
+            namaInput.value = m.nama;
+            alamatInput.value = m.alamat;
+            jkInput.value = m.jk;
+            editIdInput.value = id;
+
+            // Mengubah status tampilan form menjadi mode edit
+            formTitle.innerHTML = "✏️ Edit Data Mahasiswa";
+            btnSimpan.innerHTML = "💾 Perbarui Data";
+            passwordInput.placeholder = "Kosongkan jika tidak ingin mengubah password";
+
+            // Pindah ke halaman form input secara otomatis
+            document.querySelectorAll('.tab-btn')[0].click();
+        }
+
+        // Fitur Hapus Data
+        function hapus(id) {
+            if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
+                data = data.filter(d => d.id !== id);
+                localStorage.setItem("mahasiswa", JSON.stringify(data));
+                render();
+            }
+        }
+
+        // Validasi & Submit Form Handler
+        form.onsubmit = e => {
+            e.preventDefault();
+
+            let valid = true;
+            ["eNim", "eNama", "eAlamat", "eJk", "ePassword"].forEach(i => document.getElementById(i).innerText = "");
+
+            if (!nimInput.value.trim()) { document.getElementById("eNim").innerText = "NIM wajib diisi"; valid = false; }
+            if (!namaInput.value.trim()) { document.getElementById("eNama").innerText = "Nama wajib diisi"; valid = false; }
+            if (!alamatInput.value.trim()) { document.getElementById("eAlamat").innerText = "Alamat wajib diisi"; valid = false; }
+            if (!jkInput.value) { document.getElementById("eJk").innerText = "Pilih Jenis Kelamin"; valid = false; }
+
+            // Password hanya wajib jika registrasi data BARU
+            if (!editIdInput.value && !passwordInput.value) {
+                document.getElementById("ePassword").innerText = "Password wajib diisi";
+                valid = false;
+            }
+
+            if (!valid) return;
+
+            if (editIdInput.value) {
+                // Proses Update Data
+                const m = data.find(d => d.id == editIdInput.value);
+                if (m) {
+                    m.nim = nimInput.value;
+                    m.nama = namaInput.value;
+                    m.alamat = alamatInput.value;
+                    m.jk = jkInput.value;
+                    if(passwordInput.value) m.password = passwordInput.value; // ubah pass jika diisi
+                }
+            } else {
+                // Proses Tambah Data Baru
+                data.push({
+                    id: Date.now(),
+                    nim: nimInput.value,
+                    nama: namaInput.value,
+                    alamat: alamatInput.value,
+                    jk: jkInput.value,
+                    password: passwordInput.value
+                });
+            }
+
+            localStorage.setItem("mahasiswa", JSON.stringify(data));
+            
+            // Reset Form sepenuhnya (termasuk mengembalikan title UI form)
+            form.reset();
+            editIdInput.value = "";
+            formTitle.innerHTML = "🎓 Tambah Mahasiswa";
+            btnSimpan.innerHTML = "💾 Simpan Data";
+            passwordInput.placeholder = "Password";
+
+            // Pindah otomatis ke Halaman Data setelah simpan sukses
+            document.querySelectorAll('.tab-btn')[1].click();
+        };
+
+        // Fitur Ekspor ke Excel
+        function eksporExcel() {
+            if(data.length === 0) {
+                alert("Tidak ada data mahasiswa yang bisa diekspor.");
+                return;
+            }
+
+            // Memetakan struktur data objek agar rapi saat dicetak di excel
+            const dataEksport = data.map((m, index) => ({
+                "No": index + 1,
+                "NIM": m.nim,
+                "Nama Lengkap": m.nama,
+                "Alamat": m.alamat,
+                "Jenis Kelamin": m.jk === 'L' ? 'Laki-laki' : 'Perempuan'
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(dataEksport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Data Mahasiswa");
+
+            // Mengunduh File Excel hasil generate
+            XLSX.writeFile(workbook, "Data_Mahasiswa.xlsx");
+        }
+
+        // Live Search Handler
+        searchInput.oninput = () => { page = 1; render(); };
+
+        // Render perdana saat aplikasi dimuat pertama kali
+        updateStatistik();
+    </script>
+</body>
+</html>
