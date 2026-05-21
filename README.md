@@ -13,7 +13,8 @@
 
 𝟏. 𝐄𝐤𝐬𝐩𝐨𝐫 𝐄𝐱𝐜𝐞𝐥
 
-<img width="1478" height="149" alt="fitur ekspor excel" src="https://github.com/user-attachments/assets/d9bdec3d-34c6-4188-b2af-e146555afd05" />
+<img width="1532" height="642" alt="Ekspor Excel" src="https://github.com/user-attachments/assets/2703f1fb-be88-4b53-87f2-8f5ec4b2d8ed" />
+
 
 Fungsi program tersebut sebagai Validasi awal sebelum ekspor. Jika array data masih kosong (data.length === 0), aplikasi akan memunculkan kotak peringatan (alert) dan membatalkan proses ekspor dengan perintah return.
 
