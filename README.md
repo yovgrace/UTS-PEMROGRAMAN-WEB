@@ -15,4 +15,6 @@
 
 <img width="1478" height="149" alt="fitur ekspor excel" src="https://github.com/user-attachments/assets/d9bdec3d-34c6-4188-b2af-e146555afd05" />
 
+Fungsi program tersebut sebagai Validasi awal sebelum ekspor. Jika array data masih kosong (data.length === 0), aplikasi akan memunculkan kotak peringatan (alert) dan membatalkan proses ekspor dengan perintah return.
+
 𝟐. 𝐋𝐚𝐛𝐞𝐥 𝐒𝐭𝐚𝐭𝐢𝐬𝐭𝐢𝐤
