@@ -20,7 +20,7 @@ jadi intinya fungsi eksporExcel() ini gunanya buat nge-convert data mahasiswa di
 
 𝟐. 𝐋𝐚𝐛𝐞𝐥 𝐒𝐭𝐚𝐭𝐢𝐬𝐭𝐢𝐤
 
-<img width="1532" height="642" alt="statistik" src="https://github.com/user-attachments/assets/941c605f-16bc-4a13-aea0-9cb2d4c532e5" />
+<img width="1547" height="736" alt="fitur stk" src="https://github.com/user-attachments/assets/2c0bf7a6-9691-43d2-9e86-3c5a0917d11f" />
 
 
 stats-grid (Bungkus Utama Kartu Statistik)
